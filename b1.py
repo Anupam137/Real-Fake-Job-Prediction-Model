@@ -32,6 +32,18 @@ st.markdown(
 # Main layout
 st.markdown('<h1 style="text-align: center;">Job Posting Classifier</h1>', unsafe_allow_html=True)
 
+# Adding the Google Form link to the homepage
+st.markdown(
+    """
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="https://forms.gle/bQVH5ABALuLCm2ML6" target="_blank" style="text-decoration: none;">
+            <button class="btn-primary">Feedback Questionnaire</button>
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Sidebar navigation
 app_mode = st.sidebar.radio('Select Page', ['Login', 'Classifier', 'Feedback', 'Register'])
 
