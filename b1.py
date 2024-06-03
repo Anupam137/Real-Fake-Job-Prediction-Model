@@ -5,6 +5,10 @@ import csv
 import os
 import pickle
 
+# Initialize session state for user
+if 'logged_in_user' not in st.session_state:
+    st.session_state['logged_in_user'] = None
+
 # Loading the classification model
 model = pickle.load(open('job_posting.pkl', 'rb'))
 
@@ -23,6 +27,16 @@ st.markdown(
     }
     .btn-primary:hover {
         background-color: #45A049;
+    }
+    .top-right-corner {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 14px;
     }
     </style>
     """,
@@ -44,8 +58,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Display logged-in user at the top right corner
+if st.session_state['logged_in_user']:
+    st.markdown(f'<div class="top-right-corner">Logged in as: {st.session_state["logged_in_user"]}</div>', unsafe_allow_html=True)
+
 # Sidebar navigation
-app_mode = st.sidebar.radio('Select Page', ['Login', 'Classifier', 'Feedback', 'Register'])
+app_mode = st.sidebar.radio('Select Page', ['Login', 'Classifier', 'Feedback', 'Register', 'Help'])
 
 # Login page
 if app_mode == 'Login':
@@ -57,6 +75,7 @@ if app_mode == 'Login':
     if login_button:
         if username == "admin" and password == "secret":
             st.success("Login successful!")
+            st.session_state['logged_in_user'] = username
             app_mode = 'Feedback'  # Redirect to the feedback page on successful login
         else:
             st.error("Invalid username or password.")
@@ -79,6 +98,7 @@ elif app_mode == 'Register':
                 writer = csv.writer(csvfile)
                 writer.writerow([username, email, password])
             st.success("Registration successful!")
+            st.session_state['logged_in_user'] = username
             app_mode = 'Classifier'
 
 # Feedback form
@@ -103,7 +123,7 @@ elif app_mode == 'Feedback':
 
 # Classifier page
 elif app_mode == 'Classifier':
-    st.title("Job Posting Classifier: Real/Fake")
+    st.title("Classifier: Real/Fake")
     user_input = st.text_input("Enter Job Posting Source Link or Upload Image")
 
     if user_input:
@@ -121,3 +141,26 @@ elif app_mode == 'Classifier':
             no_count = (telecommuting == 'No') + (has_company_logo == 'No') + (has_questions == 'No') + (employment_type == 'Not Specified') + (required_experience == 'Not Applicable') + (required_education == 'Unspecified') + (industry == 'Not Specified') + (function == 'Not Specified')
             result = "Fake" if no_count >= 2 else "Real"
             st.write(f"The given job posting is {result}")
+
+# Help page
+elif app_mode == 'Help':
+    st.title('Help Page')
+    st.markdown("""
+    ## Project Explanation
+    - **Purpose:** To classify job postings as real or fake.
+    - **Features:**
+        - **Telecommuting:** Whether the job allows remote work.
+        - **Company Logo:** Whether the job posting has a company logo.
+        - **Questions:** Whether the job posting includes questions.
+        - **Employment Type:** Type of employment (Full-time, Part-time, etc.).
+        - **Required Experience:** Level of experience required.
+        - **Required Education:** Educational qualifications required.
+        - **Industry:** The industry relevant to the job posting.
+        - **Function:** The primary function of the job.
+    - **How to Use:**
+        1. **Login/Register:** Users can login or register for an account.
+        2. **Classifier:** Enter the job posting details and get a prediction.
+        3. **Feedback:** Provide feedback on the classification results.
+    - ** Note: ** The Project is Currently in Development phase so use dummy passwords for Registeration.
+        Admin Account Password is Secret.
+    """)
